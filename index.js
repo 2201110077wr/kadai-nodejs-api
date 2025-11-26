@@ -1,21 +1,30 @@
 import express from 'express';
 
 const app = express();
-const port = 30030;
-const API_URL = 'https://dog.ceo/api/breeds/image/random';
+const PORT = 30030;
+const DOG_API_URL = 'https://dog.ceo/api/breeds/image/random';
 
-app.get('/', async (req, res) => {
+app.get('/', (req, res) => {
+
+    res.send('<p><a href="/dog">/dog</a></p>');
+});
+
+app.get('/dog', async (req, res) => {
     try {
-        const data = await (await fetch(API_URL)).json();
+        const apiResponse = await fetch(DOG_API_URL); 
+        const dogData = await apiResponse.json();
 
-        if (data.status === 'success') {
-            res.send(`<body><img src="${data.message}" alt="Dog" style="max-width:100%; display:block;"></body>`);
+        if (dogData.status === 'success') {
+            res.json({
+                image_url: dogData.message,
+            });
         } else {
-            res.status(500).send('API error');
+            res.status(500).json({ error: 'Api error' });
         }
-    } catch (e) {
-        res.status(500).send('Server error');
+
+    } catch (error) {
+        res.status(500).json({ error: 'Sever error' });
     }
 });
 
-app.listen(port, () => console.log(`Server running on ${port}`));
+app.listen(PORT);
